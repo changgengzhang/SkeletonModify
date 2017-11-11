@@ -10,9 +10,10 @@ GLWidget::GLWidget(QWidget *parent)
 	m_model = new Model();
 	m_backdrop = new Backdrop();
 	m_currMovePoints = -1;
-	//m_moveDirection = -1;
-	//setFocusPolicy(Qt::StrongFocus);
+	
 	m_projectionPoints.resize(JointsNumber);
+	m_moveDelta = 0.0f;
+	m_moveAllPoints = false;
 }
 
 GLWidget::~GLWidget()
@@ -46,6 +47,11 @@ void GLWidget::paintGL()
 {
 	glClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT);
 	
+	if (!m_data->m_isvalid)
+	{
+		return;
+	}
+
 	// 正投影
 	glViewport(0, 0, RenderViewWidth, RenderViewHeight);
 	// glm::mat4 viewFront = glm::lookAt(glm::vec3(0.0f, 0.0f, 4.7f), glm::vec3(0.0f, 0.0f, 0.0f), glm::vec3(0.0f, 1.0f, 0.0f));
@@ -71,7 +77,7 @@ void GLWidget::paintGL()
 
 	// 左前方
 	glViewport(RenderViewWidth, RenderViewHeight / 2.0f, RenderViewHeight / 2.0f, RenderViewHeight / 2.0f);
-	glm::mat4 viewRightFront = glm::lookAt(center + glm::vec3(-0.5f, 0.0f, 0.5f), center, glm::vec3(0.0f, 1.0f, 0.0f));
+	glm::mat4 viewRightFront = glm::lookAt(center + glm::vec3(-0.5f, 0.0f, 0.0f), center, glm::vec3(0.0f, 1.0f, 0.0f));
 	m_model->setMVPMat(m_projMat * viewRightFront);
 	m_model->draw();
 
@@ -95,6 +101,18 @@ void GLWidget::mousePressEvent(QMouseEvent *mouseEvent)
 
 	this->calSkeletonProjectionPoings();
 	m_currMovePoints = this->compareClickedPointAndProjPoint(glm::vec2(x, y));
+
+	// 上下帧
+	if (m_currMovePoints == -1)
+	{
+		this->changeCurrFrame(mouseEvent->button());
+		// 选择了上下帧后，将进行插值的按钮关闭
+		emit sendChangeSmoothRadioButton(false);
+	}
+	else
+	{
+		emit sendCurrMoveJointIndex(m_currMovePoints);
+	}
 	update();
 }
 
@@ -114,16 +132,17 @@ void GLWidget::mouseMoveEvent(QMouseEvent *mouseEvent)
 void GLWidget::keyPressEvent(QKeyEvent *keyEvent)
 {
 	makeCurrent();
-	float moveDelta = 0.05;
+	float moveDelta = m_moveDelta;
+
 	switch (keyEvent->key())
 	{
 	// A D 左右（x方向移动）
 	case Qt::Key_A:
-		this->movePoints(MoveDirection::xAxis, moveDelta);
+		this->movePoints(MoveDirection::xAxis, -moveDelta);
 		m_model->updateVBOData();
 		break;
 	case Qt::Key_D:
-		this->movePoints(MoveDirection::xAxis, -moveDelta);
+		this->movePoints(MoveDirection::xAxis, moveDelta);
 		m_model->updateVBOData();
 		break;
 	// W S 上下（y 方向移动）
@@ -135,18 +154,44 @@ void GLWidget::keyPressEvent(QKeyEvent *keyEvent)
 		this->movePoints(MoveDirection::yAxis, -moveDelta);
 		m_model->updateVBOData();
 		break;
-	case Qt::Key_Z:
+	case Qt::Key_Q:
 		this->movePoints(MoveDirection::zAxis, moveDelta);
 		m_model->updateVBOData();
 		break;
-	case Qt::Key_C:
+	case Qt::Key_E:
 		this->movePoints(MoveDirection::zAxis, -moveDelta);
 		m_model->updateVBOData();
 		break;
 	default:
 		break;
 	}
+
+	// 每次更新了点的数据后都尝试着进行插值
+	this->smoothFrames();
+
 	update();
+}
+
+
+void GLWidget::onMoveDeltaSpinBoxValueChanged(double d)
+{
+	m_moveDelta = d;
+}
+
+void GLWidget::onAllJointsRadioButtonToggled(bool state)
+{
+	m_moveAllPoints = state;
+}
+
+
+void GLWidget::onSmoothRadioButtonToggled(bool state)
+{
+	m_smooth = state;
+}
+
+void GLWidget::onSmoothStepSpinBoxValueChanged(int step)
+{
+	m_smoothStep = step;
 }
 
 //////////////////////////////////////////////////////////////////////////
@@ -182,6 +227,12 @@ int  GLWidget::compareClickedPointAndProjPoint(glm::vec2 clickedPoint)
 		}
 	}
 
+	// 距离太远了，就假设没有选中点，是选择下一帧
+	if (dist > 50)
+	{
+		return -1;
+	}
+
 	return selectedPoint;
 }
 
@@ -189,11 +240,25 @@ int  GLWidget::compareClickedPointAndProjPoint(glm::vec2 clickedPoint)
 // @d : 移动的距离
 void GLWidget::movePoints(MoveDirection direction, float d)
 {
-	if (m_currMovePoints == -1)
+	if (m_currMovePoints == -1 && !m_moveAllPoints)
 		return;
-	this->moveOnePointOnOneDirection(direction, m_currMovePoints,d);
-	// 更新存储在Skeleton中的数据
-	m_data->m_jointsData[m_currFrame][m_currMovePoints] = m_model->m_jointsData[m_currMovePoints];
+
+	if (m_moveAllPoints)
+	{
+		for (int i = 0; i < JointsNumber; i++)
+		{
+			this->moveOnePointOnOneDirection(direction, i, d);
+			// 更新存储在Skeleton中的数据
+			m_data->m_jointsData[m_currFrame][i] = m_model->m_jointsData[i];
+		}
+	}
+	else
+	{
+		this->moveOnePointOnOneDirection(direction, m_currMovePoints, d);
+		// 更新存储在Skeleton中的数据
+		m_data->m_jointsData[m_currFrame][m_currMovePoints] = m_model->m_jointsData[m_currMovePoints];
+	}
+	emit sendUpdataTextBrowser(m_currFrame);
 }
 
 
@@ -227,10 +292,84 @@ void GLWidget::moveOnePointOnOneDirection(MoveDirection direction, int index, fl
 }
 
 
+void GLWidget::changeCurrFrame(Qt::MouseButton button)
+{
+	switch (button)
+	{
+	case Qt::LeftButton:
+		if (m_currFrame == m_data->m_frameCount - 1)
+		{
+			m_currFrame = m_data->m_frameCount - 1;
+		}
+		else
+		{
+			++m_currFrame;
+		}
+		break;
+	case  Qt::RightButton:
+		if (m_currFrame == 0)
+		{
+			m_currFrame = 0;
+		}
+		else
+		{
+			--m_currFrame;
+		}
+		break;
+	default:
+		break;
+	}
+
+	emit sendCurrFrameIndex(m_currFrame);
+}
+
+
+void GLWidget::smoothFrames()
+{
+	if (!m_smooth)
+		return;
+
+	int startFrameIndex = (m_currFrame - m_smoothStep) < 0 ? 0 : m_currFrame - m_smoothStep;
+	//int startFrameIndex;
+	//int tmp = m_currFrame - m_smoothStep;
+	//if((m_currFrame - m_smoothStep) < 0)
+	//// if (tmp < 0)
+	//	startFrameIndex = 0;
+	//else
+	//	startFrameIndex = m_currFrame - m_smoothStep;
+
+	int endFrameIndex = m_currFrame;
+	int realSmoothStep = endFrameIndex - startFrameIndex;
+	
+	if (realSmoothStep < 2)
+		return;
+
+	QVector<glm::vec3> startFramePosition = m_data->m_jointsData[startFrameIndex];
+	QVector<glm::vec3> endFramePosition = m_data->m_jointsData[endFrameIndex];
+
+	
+	for (int i = 0; i < JointsNumber; i++)
+	{
+		// 计算距离
+		glm::vec3 start = startFramePosition[i];
+		glm::vec3 end = endFramePosition[i];
+		
+		// 简单的线性插值吧
+		float delta = glm::length(start - end) / realSmoothStep;
+		glm::vec3 direc = end - start;
+
+		for (int j = startFrameIndex + 1; j < endFrameIndex; j++)
+		{
+			m_data->m_jointsData[j][i] = start + direc * delta * (float)(j - startFrameIndex);
+		}
+	}
+}
+
+
 //////////////////////////////////////////////////////////////////////////
 // slots
 
-void GLWidget::acceptCurrFrameIndex(uint index)
+void GLWidget::acceptCurrFrameIndex(int index)
 {
 	makeCurrent();
 	m_currFrame = index;
@@ -244,22 +383,11 @@ void GLWidget::acceptCurrFrameIndex(uint index)
 }
 
 
-void GLWidget::acceptMovePointIndex(int index)
-{
-	//m_currMovePoints = index;
-}
-
-
-//void GLWidget::acceptMoveAixsIndex(int index)
-//{
-//	m_moveDirection = index;
-//}
-
 //////////////////////////////////////////////////////////////////////////
 // Helper function
 const glm::vec3  GLWidget::calSkeletonCenter()
 {
-	glm::vec3 maxCoord = glm::vec3(std::numeric_limits<float>::min());
+	/*glm::vec3 maxCoord = glm::vec3(std::numeric_limits<float>::min());
 	glm::vec3 minCoord = glm::vec3(std::numeric_limits<float>::max());
 	glm::vec3 center = glm::vec3(0.0f, 0.0f, 0.0f);
 
@@ -279,7 +407,10 @@ const glm::vec3  GLWidget::calSkeletonCenter()
 			vertex.z < minCoord.z ? vertex.z : minCoord.z
 		);
 	}
-	
-	center = (maxCoord + minCoord) / 2.0f;
+
+	center = (maxCoord + minCoord) / 2.0f;*/
+
+	glm::vec3 center = m_model->m_jointsData[14];
+
 	return center;
 }

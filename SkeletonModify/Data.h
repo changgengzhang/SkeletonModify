@@ -32,7 +32,7 @@ public:
 	// 所有帧的关节点数据
 	QVector<QVector<glm::vec3>> m_jointsData;
 	// 存储修改后的关节点数据
-	QVector<QVector<glm::vec3>> m_modifiedJointsData;
+	// QVector<QVector<glm::vec3>> m_modifiedJointsData;
 	// Frame 的路径，为了加载Frame
 	QString m_frameBasePath;
 

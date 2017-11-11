@@ -26,7 +26,7 @@ public:
 	void setupShaderProgram(QString vertexFile, QString fragmentFile);
 	void setupBufferData();
 	void updateVBOData();
-	void Model::generateTexture(QString textureFile);
+	void generateTexture(QString textureFile) {};
 	void setMVPMat(glm::mat4 mvpMat);
 
 private:

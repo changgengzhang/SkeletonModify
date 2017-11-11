@@ -19,13 +19,24 @@ void Data::saveDataToFile(QString filePath)
 	if (!m_isvalid)
 		return;
 
-	std::ofstream ofs;
-	Json::FastWriter writer;
+	std::ifstream ifs;
+	Json::Reader reader;
 	Json::Value root;
 
+	ifs.open(m_jointsFilePath.toStdString());
+	assert(ifs.is_open());
+	if (!reader.parse(ifs, root, false)) {
+		return;
+	}
+	ifs.close();
+
+	std::ofstream ofs;
+	Json::FastWriter writer;
+	Json::Value data;
+	
 	ofs.open(m_jointsFilePath.toStdString(), std::ios::trunc);
 	assert(ofs.is_open());
-
+	
 	for (uint i = 0; i < m_jointsData.count(); i++)
 	{
 		Json::Value onePeopleJoints;
@@ -35,10 +46,13 @@ void Data::saveDataToFile(QString filePath)
 			onePeopleJoints.append(m_jointsData[i][j].x);
 			onePeopleJoints.append(m_jointsData[i][j].y);
 			onePeopleJoints.append(m_jointsData[i][j].z);
+			
 		}
-		root.append(onePeopleJoints);
+		data.append(onePeopleJoints);
+		
 	}
 
+	root["position"] = data;
 	std::string json_file = writer.write(root);
 
 	ofs << json_file;
@@ -47,21 +61,6 @@ void Data::saveDataToFile(QString filePath)
 
 
 //////////////////////////////////////////////////////////////////////////
-// 根据配置文件解析数据文件路径
-void Data::parseDataPath()
-{
-	if (!m_isvalid)
-		return;
-
-	m_baseDir = m_configureFilePath.section('/', 0, -2);
-	// 3d 数据点文件  ../Data/joints3d.json
-	m_jointsFilePath = m_baseDir + "/joints3d.json";
-	// frame 文件  ../Data/frame/frame_%06d.jpg
-	m_frameBasePath = m_baseDir + "/frame/frame_%1.jpg";
-	//m_frameBasePath = m_frameBasePath.arg(2, 6, 10, QLatin1Char('0'));
-}
-
-
 void Data::parseConfigureFile()
 {
 	if (!m_isvalid)
@@ -78,6 +77,9 @@ void Data::parseConfigureFile()
 	}
 
 	m_frameCount = root["frameCount"].asUInt();
+	m_frameBasePath = QString(root["frameFolderPath"].asCString()) + "//frame_%1.jpg";
+	m_jointsFilePath = root["positionFilePath"].asCString();
+
 }
 
 
@@ -98,10 +100,10 @@ void Data::parseJointsDataFile()
 	if (!reader.parse(ifs, root, false)) {
 		return;
 	}
-
+	Json::Value data = root["position"];
 	for (uint i = 0; i < m_frameCount; i++)
 	{
-		Json::Value oneFrame = root[i];
+		Json::Value oneFrame = data[i];
 		QVector<glm::vec3> oneFrameData;
 		for (uint j = 0; j < JointsNumber; j++)
 		{
@@ -124,7 +126,6 @@ void Data::acceptConfigureFilePath(QString configureFilePath)
 {
 	m_isvalid = true;
 	m_configureFilePath = configureFilePath;
-	this->parseDataPath();
 	this->parseConfigureFile();
 	this->parseJointsDataFile();
 }

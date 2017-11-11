@@ -30,10 +30,18 @@ public:
 
 	//////////////////////////////////////////////////////////////////////////
 	public slots:
-	void acceptCurrFrameIndex(uint index);
-	void acceptMovePointIndex(int index);
-	//void acceptMoveAixsIndex(int index);
+	void acceptCurrFrameIndex(int index);
 	void keyPressEvent(QKeyEvent *keyEvent);
+	void onMoveDeltaSpinBoxValueChanged(double d);
+	void onAllJointsRadioButtonToggled(bool state);
+	void onSmoothRadioButtonToggled(bool state);
+	void onSmoothStepSpinBoxValueChanged(int step);
+
+signals:
+	void sendCurrFrameIndex(int);
+	void sendCurrMoveJointIndex(int);
+	void sendUpdataTextBrowser(int index);
+	void sendChangeSmoothRadioButton(bool state);
 
 protected:
 	// ============== virtual function inherited form QOpenGLWidget ================
@@ -57,6 +65,13 @@ private:
 	// 移动点
 	void movePoints(MoveDirection direction, float d);
 	void moveOnePointOnOneDirection(MoveDirection direction, int index, float d);
+
+	// 上下帧
+	void changeCurrFrame(Qt::MouseButton button);
+
+	// 插值
+	void smoothFrames();
+
 private:
 	glm::mat4 m_projMat;
 
@@ -64,8 +79,14 @@ private:
 	Backdrop *m_backdrop;
 	// joints 
 	int m_currMovePoints;
-	//int m_moveDirection;	// -1 None, 0 x, 1 y, 2 z
-	uint m_currFrame;
+	int m_currFrame;
+	// 移动距离
+	float m_moveDelta;
+	// 选中所有点
+	bool m_moveAllPoints;
+	// 插值
+	bool m_smooth;
+	int m_smoothStep;
 	// joints 数据
 	Data *m_data;
 	// 21 个关节点的投影值
