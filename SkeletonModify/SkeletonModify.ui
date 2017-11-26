@@ -6,8 +6,8 @@
    <rect>
     <x>0</x>
     <y>0</y>
-    <width>1463</width>
-    <height>678</height>
+    <width>1661</width>
+    <height>674</height>
    </rect>
   </property>
   <property name="windowTitle">
@@ -29,27 +29,14 @@
      <rect>
       <x>10</x>
       <y>10</y>
-      <width>201</width>
+      <width>221</width>
       <height>80</height>
      </rect>
     </property>
-    <layout class="QGridLayout" name="gridLayout">
-     <item row="0" column="0">
-      <widget class="QLabel" name="label1">
-       <property name="styleSheet">
-        <string notr="true">font: 14pt</string>
-       </property>
-       <property name="frameShape">
-        <enum>QFrame::Panel</enum>
-       </property>
-       <property name="frameShadow">
-        <enum>QFrame::Raised</enum>
-       </property>
-       <property name="text">
-        <string>TotalFrame:</string>
-       </property>
-      </widget>
-     </item>
+    <layout class="QGridLayout" name="gridLayout" rowstretch="0,0" columnstretch="2,1">
+     <property name="spacing">
+      <number>3</number>
+     </property>
      <item row="0" column="1">
       <widget class="QLabel" name="labelTotalFrame">
        <property name="styleSheet">
@@ -83,6 +70,9 @@
        <property name="text">
         <string> CurrFrame:</string>
        </property>
+       <property name="alignment">
+        <set>Qt::AlignCenter</set>
+       </property>
       </widget>
      </item>
      <item row="1" column="1">
@@ -104,15 +94,34 @@
        </property>
       </widget>
      </item>
+     <item row="0" column="0">
+      <widget class="QLabel" name="label1">
+       <property name="styleSheet">
+        <string notr="true">font: 14pt</string>
+       </property>
+       <property name="frameShape">
+        <enum>QFrame::Panel</enum>
+       </property>
+       <property name="frameShadow">
+        <enum>QFrame::Raised</enum>
+       </property>
+       <property name="text">
+        <string>TotalFrame:</string>
+       </property>
+       <property name="alignment">
+        <set>Qt::AlignCenter</set>
+       </property>
+      </widget>
+     </item>
     </layout>
    </widget>
    <widget class="QTextBrowser" name="textBrowserPositionValue">
     <property name="geometry">
      <rect>
-      <x>700</x>
-      <y>10</y>
-      <width>751</width>
-      <height>81</height>
+      <x>1460</x>
+      <y>100</y>
+      <width>191</width>
+      <height>541</height>
      </rect>
     </property>
     <property name="frameShape">
@@ -122,9 +131,9 @@
    <widget class="QWidget" name="gridLayoutWidget_2">
     <property name="geometry">
      <rect>
-      <x>440</x>
+      <x>490</x>
       <y>9</y>
-      <width>239</width>
+      <width>261</width>
       <height>81</height>
      </rect>
     </property>
@@ -133,40 +142,8 @@
       <enum>QLayout::SetDefaultConstraint</enum>
      </property>
      <property name="spacing">
-      <number>6</number>
+      <number>3</number>
      </property>
-     <item row="0" column="0">
-      <widget class="QFrame" name="frame_3">
-       <property name="frameShape">
-        <enum>QFrame::Panel</enum>
-       </property>
-       <property name="frameShadow">
-        <enum>QFrame::Raised</enum>
-       </property>
-       <widget class="QLabel" name="label_2">
-        <property name="geometry">
-         <rect>
-          <x>0</x>
-          <y>0</y>
-          <width>151</width>
-          <height>41</height>
-         </rect>
-        </property>
-        <property name="styleSheet">
-         <string notr="true">font: 14pt</string>
-        </property>
-        <property name="frameShape">
-         <enum>QFrame::Panel</enum>
-        </property>
-        <property name="frameShadow">
-         <enum>QFrame::Raised</enum>
-        </property>
-        <property name="text">
-         <string>  MoveDelta：</string>
-        </property>
-       </widget>
-      </widget>
-     </item>
      <item row="0" column="1">
       <widget class="QFrame" name="frame_4">
        <property name="frameShape">
@@ -180,7 +157,7 @@
          <rect>
           <x>0</x>
           <y>0</y>
-          <width>81</width>
+          <width>91</width>
           <height>41</height>
          </rect>
         </property>
@@ -206,7 +183,7 @@
          <double>1.000000000000000</double>
         </property>
         <property name="singleStep">
-         <double>0.001000000000000</double>
+         <double>0.005000000000000</double>
         </property>
         <property name="value">
          <double>0.000000000000000</double>
@@ -222,20 +199,29 @@
        <property name="frameShadow">
         <enum>QFrame::Sunken</enum>
        </property>
-       <widget class="QSpinBox" name="spinBoxSmoothStep">
+       <widget class="QSpinBox" name="spinBoxCopyFrameStep">
         <property name="geometry">
          <rect>
           <x>0</x>
           <y>0</y>
-          <width>81</width>
+          <width>91</width>
           <height>41</height>
          </rect>
         </property>
         <property name="styleSheet">
          <string notr="true">font: 14pt</string>
         </property>
+        <property name="alignment">
+         <set>Qt::AlignCenter</set>
+        </property>
+        <property name="minimum">
+         <number>-30</number>
+        </property>
         <property name="maximum">
          <number>30</number>
+        </property>
+        <property name="value">
+         <number>0</number>
         </property>
        </widget>
       </widget>
@@ -248,36 +234,212 @@
        <property name="frameShadow">
         <enum>QFrame::Raised</enum>
        </property>
-       <widget class="QRadioButton" name="radioButtonSmooth">
+       <widget class="QRadioButton" name="radioButtonCopyFrame">
         <property name="geometry">
          <rect>
           <x>30</x>
           <y>0</y>
           <width>101</width>
-          <height>31</height>
+          <height>41</height>
          </rect>
         </property>
         <property name="styleSheet">
          <string notr="true">font: 14pt </string>
         </property>
         <property name="text">
-         <string>Smooth</string>
+         <string>CopyFrom</string>
         </property>
        </widget>
       </widget>
+     </item>
+     <item row="0" column="0">
+      <widget class="QLabel" name="label_2">
+       <property name="styleSheet">
+        <string notr="true">font: 14pt</string>
+       </property>
+       <property name="frameShape">
+        <enum>QFrame::Panel</enum>
+       </property>
+       <property name="frameShadow">
+        <enum>QFrame::Raised</enum>
+       </property>
+       <property name="text">
+        <string>MoveDelta:</string>
+       </property>
+       <property name="alignment">
+        <set>Qt::AlignCenter</set>
+       </property>
+      </widget>
+     </item>
+    </layout>
+   </widget>
+   <widget class="QWidget" name="verticalLayoutWidget">
+    <property name="geometry">
+     <rect>
+      <x>770</x>
+      <y>10</y>
+      <width>391</width>
+      <height>80</height>
+     </rect>
+    </property>
+    <layout class="QVBoxLayout" name="verticalLayout">
+     <property name="spacing">
+      <number>3</number>
+     </property>
+     <item>
+      <layout class="QHBoxLayout" name="horizontalLayout">
+       <property name="spacing">
+        <number>3</number>
+       </property>
+       <item>
+        <widget class="QFrame" name="frame_6">
+         <property name="frameShape">
+          <enum>QFrame::Panel</enum>
+         </property>
+         <property name="frameShadow">
+          <enum>QFrame::Raised</enum>
+         </property>
+         <widget class="QRadioButton" name="radioButtonSmooth">
+          <property name="geometry">
+           <rect>
+            <x>30</x>
+            <y>0</y>
+            <width>121</width>
+            <height>41</height>
+           </rect>
+          </property>
+          <property name="layoutDirection">
+           <enum>Qt::LeftToRight</enum>
+          </property>
+          <property name="styleSheet">
+           <string notr="true">font: 14pt ;</string>
+          </property>
+          <property name="text">
+           <string>SmoothStep</string>
+          </property>
+         </widget>
+        </widget>
+       </item>
+       <item>
+        <widget class="QFrame" name="frame_7">
+         <property name="frameShape">
+          <enum>QFrame::Panel</enum>
+         </property>
+         <property name="frameShadow">
+          <enum>QFrame::Raised</enum>
+         </property>
+         <widget class="QSpinBox" name="spinBoxSmoothStep">
+          <property name="geometry">
+           <rect>
+            <x>0</x>
+            <y>0</y>
+            <width>191</width>
+            <height>41</height>
+           </rect>
+          </property>
+          <property name="styleSheet">
+           <string notr="true">font: 14pt</string>
+          </property>
+          <property name="alignment">
+           <set>Qt::AlignCenter</set>
+          </property>
+         </widget>
+        </widget>
+       </item>
+      </layout>
+     </item>
+     <item>
+      <layout class="QHBoxLayout" name="horizontalLayout_2" stretch="2,1,2,1">
+       <property name="spacing">
+        <number>3</number>
+       </property>
+       <item>
+        <widget class="QLabel" name="label_3">
+         <property name="styleSheet">
+          <string notr="true">font: 14pt</string>
+         </property>
+         <property name="frameShape">
+          <enum>QFrame::Panel</enum>
+         </property>
+         <property name="frameShadow">
+          <enum>QFrame::Raised</enum>
+         </property>
+         <property name="text">
+          <string>StartFrame：</string>
+         </property>
+         <property name="alignment">
+          <set>Qt::AlignCenter</set>
+         </property>
+        </widget>
+       </item>
+       <item>
+        <widget class="QLabel" name="labelStartSmoothFrame">
+         <property name="styleSheet">
+          <string notr="true">font: 14pt</string>
+         </property>
+         <property name="frameShape">
+          <enum>QFrame::Panel</enum>
+         </property>
+         <property name="frameShadow">
+          <enum>QFrame::Sunken</enum>
+         </property>
+         <property name="text">
+          <string/>
+         </property>
+        </widget>
+       </item>
+       <item>
+        <widget class="QLabel" name="label_6">
+         <property name="styleSheet">
+          <string notr="true">font: 14pt</string>
+         </property>
+         <property name="frameShape">
+          <enum>QFrame::Panel</enum>
+         </property>
+         <property name="frameShadow">
+          <enum>QFrame::Raised</enum>
+         </property>
+         <property name="text">
+          <string>EndFrame：</string>
+         </property>
+         <property name="alignment">
+          <set>Qt::AlignCenter</set>
+         </property>
+        </widget>
+       </item>
+       <item>
+        <widget class="QLabel" name="labelEndSmoothFrame">
+         <property name="styleSheet">
+          <string notr="true">font: 14pt</string>
+         </property>
+         <property name="frameShape">
+          <enum>QFrame::Panel</enum>
+         </property>
+         <property name="frameShadow">
+          <enum>QFrame::Sunken</enum>
+         </property>
+         <property name="text">
+          <string/>
+         </property>
+        </widget>
+       </item>
+      </layout>
      </item>
     </layout>
    </widget>
    <widget class="QWidget" name="gridLayoutWidget_3">
     <property name="geometry">
      <rect>
-      <x>230</x>
+      <x>250</x>
       <y>10</y>
-      <width>191</width>
-      <height>80</height>
+      <width>211</width>
+      <height>81</height>
      </rect>
     </property>
-    <layout class="QGridLayout" name="gridLayout_3">
+    <layout class="QGridLayout" name="gridLayout_3" rowstretch="1,1" columnstretch="2,1">
+     <property name="spacing">
+      <number>3</number>
+     </property>
      <item row="0" column="1">
       <widget class="QLabel" name="labelCurrJoint">
        <property name="styleSheet">
@@ -306,34 +468,62 @@
         <enum>QFrame::Raised</enum>
        </property>
        <property name="text">
-        <string>  CurrJoint：</string>
+        <string>CurrJoint:</string>
+       </property>
+       <property name="alignment">
+        <set>Qt::AlignCenter</set>
        </property>
       </widget>
      </item>
-     <item row="1" column="0">
+     <item row="1" column="1">
       <widget class="QFrame" name="frame_2">
+       <property name="frameShape">
+        <enum>QFrame::StyledPanel</enum>
+       </property>
+       <property name="frameShadow">
+        <enum>QFrame::Raised</enum>
+       </property>
+       <widget class="QSpinBox" name="spinBoxJumpToFrameIndex">
+        <property name="geometry">
+         <rect>
+          <x>0</x>
+          <y>0</y>
+          <width>71</width>
+          <height>41</height>
+         </rect>
+        </property>
+        <property name="styleSheet">
+         <string notr="true">font: 14pt;</string>
+        </property>
+        <property name="alignment">
+         <set>Qt::AlignCenter</set>
+        </property>
+        <property name="buttonSymbols">
+         <enum>QAbstractSpinBox::NoButtons</enum>
+        </property>
+        <property name="maximum">
+         <number>100000</number>
+        </property>
+       </widget>
+      </widget>
+     </item>
+     <item row="1" column="0">
+      <widget class="QLabel" name="label_4">
+       <property name="styleSheet">
+        <string notr="true">font: 14pt</string>
+       </property>
        <property name="frameShape">
         <enum>QFrame::Panel</enum>
        </property>
        <property name="frameShadow">
         <enum>QFrame::Raised</enum>
        </property>
-       <widget class="QRadioButton" name="radioButtonAllJoints">
-        <property name="geometry">
-         <rect>
-          <x>10</x>
-          <y>0</y>
-          <width>121</width>
-          <height>31</height>
-         </rect>
-        </property>
-        <property name="styleSheet">
-         <string notr="true">font: 14pt</string>
-        </property>
-        <property name="text">
-         <string>All Joints</string>
-        </property>
-       </widget>
+       <property name="text">
+        <string>JumpTo</string>
+       </property>
+       <property name="alignment">
+        <set>Qt::AlignCenter</set>
+       </property>
       </widget>
      </item>
     </layout>
@@ -344,7 +534,7 @@
     <rect>
      <x>0</x>
      <y>0</y>
-     <width>1463</width>
+     <width>1661</width>
      <height>23</height>
     </rect>
    </property>

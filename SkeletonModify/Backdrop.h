@@ -18,11 +18,10 @@ public:
 	Backdrop(QObject *parent=nullptr);
 	~Backdrop();
 	void init();
-	void draw();
+	void draw(glm::mat4 mvpMat);
 	void setupShaderProgram(QString vertexFile, QString fragmentFile);
 	void setupBufferData();
 	void generateTexture(QString textureFile);
-	void setMVPMat(glm::mat4 mvpMat);
 
 private:
 	//////////////////////////////////////////////////////////////////////////

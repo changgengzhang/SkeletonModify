@@ -4,11 +4,15 @@
 #include <QOpenGLFunctions>
 #include <QEvent>
 #include <QKeyEvent>
+#include <QTimer>
+#include <QMap>
 
 #include <glm/glm.hpp>
 
 #include "Model.h"
 #include "Backdrop.h"
+#include "Utils.h"
+#include "ArcBall.h"
 
 class Data;
 
@@ -26,22 +30,22 @@ public:
 	GLWidget(QWidget *parent);
 	~GLWidget();
 
-	void setData(Data *p) { m_data = p; }
+	void setData(ChangeWidgets *u, Data *p) { m_changeWidgets = u;  m_data = p; }
 
 	//////////////////////////////////////////////////////////////////////////
 	public slots:
 	void acceptCurrFrameIndex(int index);
 	void keyPressEvent(QKeyEvent *keyEvent);
 	void onMoveDeltaSpinBoxValueChanged(double d);
-	void onAllJointsRadioButtonToggled(bool state);
+
+	void onCopyFrameRadioButtonToggled(bool state);
+	void onCopyFrameStepSpinBoxValueChanged(int step);
+
 	void onSmoothRadioButtonToggled(bool state);
 	void onSmoothStepSpinBoxValueChanged(int step);
 
 signals:
 	void sendCurrFrameIndex(int);
-	void sendCurrMoveJointIndex(int);
-	void sendUpdataTextBrowser(int index);
-	void sendChangeSmoothRadioButton(bool state);
 
 protected:
 	// ============== virtual function inherited form QOpenGLWidget ================
@@ -55,40 +59,63 @@ protected:
 	
 private:
 	//////////////////////////////////////////////////////////////////////////
-	// 为了摄像机能够看到，使摄像机对准骨架的中心
-	const glm::vec3 calSkeletonCenter();
-	
-	// 鼠标选择点操作
+	// choose the joints by mouse
 	void calSkeletonProjectionPoings();
 	int compareClickedPointAndProjPoint(glm::vec2 clickedPoint);
 
-	// 移动点
+	// move points
 	void movePoints(MoveDirection direction, float d);
-	void moveOnePointOnOneDirection(MoveDirection direction, int index, float d);
+	void calNewPosition(MoveDirection direction, int index, float d);
 
 	// 上下帧
-	void changeCurrFrame(Qt::MouseButton button);
+	void changeCurrFrame(int op);
+
+	// 复制某一帧的数据
+	void copyFrame();
 
 	// 插值
 	void smoothFrames();
+	void interpolateOneJoint(int parentJointIndex, int currJointIndex, int startFrameIndex, int endFrameIndex);
+
+	// 对称点设置
+	void calOneSymmetryJoint(int index);
+	
+
+	// helper
+	const glm::vec3 calSkeletonCenter();
+	void settingPositionValueTextBrowser(int currFrame);
+	void settingSmoothIndexLables();
+	void settingFrame(int op);
 
 private:
 	glm::mat4 m_projMat;
 
 	Model *m_model;
 	Backdrop *m_backdrop;
+	ArcBall *m_arcball;
+
 	// joints 
-	int m_currMovePoints;
-	int m_currFrame;
-	// 移动距离
+	int m_currMovePointsIndex;
+	int m_currFrameIndex;
+	// 移动单位
 	float m_moveDelta;
-	// 选中所有点
-	bool m_moveAllPoints;
+	// 复制某一帧数据
+	int m_copyFrameStep;
 	// 插值
-	bool m_smooth;
 	int m_smoothStep;
+
 	// joints 数据
 	Data *m_data;
+
 	// 21 个关节点的投影值
 	QVector<glm::vec2> m_projectionPoints;
+
+	// 节点之间的关系，为了调整移动
+	QVector<int> m_jointsParentsIndex;
+	QVector< QVector<int> > m_jointsChildrenIndex;
+	QVector<int> m_bonesIndex;
+
+	// 
+	ChangeWidgets *m_changeWidgets;
+
 };

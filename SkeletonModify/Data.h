@@ -14,15 +14,11 @@ public:
 	Data(QObject *parent=nullptr);
 	~Data();
 	void saveDataToFile(QString filePath="");
-	void calProjectionPoint(int index);
-
-public slots:
-	void acceptConfigureFilePath(QString configureFilePath);
+	bool loadData(QString configureFilePath);
 
 private:
-	void parseDataPath();
-	void parseConfigureFile();
-	void parseJointsDataFile();
+	bool parseConfigureFile();
+	bool parseJointsDataFile();
 
 public:
 	// 数据是否加载好
@@ -31,8 +27,10 @@ public:
 	uint m_frameCount;
 	// 所有帧的关节点数据
 	QVector<QVector<glm::vec3>> m_jointsData;
-	// 存储修改后的关节点数据
-	// QVector<QVector<glm::vec3>> m_modifiedJointsData;
+
+	// 骨骼的长度
+	QVector<float> m_bonesLen;
+	
 	// Frame 的路径，为了加载Frame
 	QString m_frameBasePath;
 

@@ -2,7 +2,6 @@
 #include "QFileDialog"
 
 #include "json.h"
-#include "Utils.h"
 
 #include <fstream>
 #include <QDataStream>
@@ -13,8 +12,17 @@ SkeletonModify::SkeletonModify(QWidget *parent)
 	m_ui.setupUi(this);
 	m_isvalid = false;
 
+	// 一些需要随着GLWidget中值改变而改变显示的widgets
+	m_changeWidgets.labelCurrFrame = m_ui.labelCurrFrame;
+	m_changeWidgets.textBrowserPositionValue = m_ui.textBrowserPositionValue;
+	m_changeWidgets.labelStartSmoothFrame = m_ui.labelStartSmoothFrame;
+	m_changeWidgets.labelEndSmoothFrame = m_ui.labelEndSmoothFrame;
+	m_changeWidgets.labelCurrJoint = m_ui.labelCurrJoint;
+	m_changeWidgets.radioButtonCopyFrame = m_ui.radioButtonCopyFrame;
+	m_changeWidgets.radioButtonSmooth = m_ui.radioButtonSmooth;
+
 	// data pointer
-	m_ui.openGLWidget->setData(&m_data);
+	m_ui.openGLWidget->setData(&m_changeWidgets, &m_data);
 
 	this->connectSlotsAndSignals();
 	setFocusPolicy(Qt::StrongFocus);
@@ -38,10 +46,9 @@ void SkeletonModify::keyPressEvent(QKeyEvent *keyEvent)
 }
 
 
-// 左键下一帧，右键上一帧，在GLWidget之外的地方
 void SkeletonModify::mousePressEvent(QMouseEvent *mouseEvent)
 {
-	int a = 0;
+	
 }
 
 
@@ -60,33 +67,27 @@ void SkeletonModify::connectSlotsAndSignals()
 	connect(m_ui.actionLoadConfigureFile, SIGNAL(triggered()), this, SLOT(onLoadConfigureFileActionTriggered()));
 	connect(m_ui.actionSavePositionFile, SIGNAL(triggered()), this, SLOT(onSavePositionFileActionTriggered()));
 
-	// 将路径传递给Data, 解析数据
-	connect(this, SIGNAL(sendConfigureFilePath(QString)), &m_data, SLOT(acceptConfigureFilePath(QString)));
-
 	// currFrameIndex currMoveJointIndex
 	connect(this, SIGNAL(sendCurrFrameIndex(int)), m_ui.openGLWidget, SLOT(acceptCurrFrameIndex(int)));
-	connect(m_ui.openGLWidget, SIGNAL(sendCurrFrameIndex(int)), this, SLOT(acceptCurrFrameIndex(int)));
 	connect(m_ui.openGLWidget, SIGNAL(sendCurrFrameIndex(int)), m_ui.openGLWidget, SLOT(acceptCurrFrameIndex(int)));
-
-	connect(m_ui.openGLWidget, SIGNAL(sendCurrMoveJointIndex(int)), this, SLOT(acceptCurrMoveJointIndex(int)));
+	
 	// key event
 	connect(this, SIGNAL(sendKeyEvent(QKeyEvent*)), m_ui.openGLWidget, SLOT(keyPressEvent(QKeyEvent*)));
 
 	// 移动距离
 	connect(m_ui.spinBoxMoveDelta, SIGNAL(valueChanged(double)), m_ui.openGLWidget, SLOT(onMoveDeltaSpinBoxValueChanged(double)));
 
-	// 选中所有点
-	connect(m_ui.radioButtonAllJoints, SIGNAL(toggled(bool)), m_ui.openGLWidget, SLOT(onAllJointsRadioButtonToggled(bool)));
+	// 复制帧数据
+	connect(m_ui.radioButtonCopyFrame, SIGNAL(toggled(bool)), m_ui.openGLWidget, SLOT(onCopyFrameRadioButtonToggled(bool)));
+	connect(m_ui.spinBoxCopyFrameStep, SIGNAL(valueChanged(int)), m_ui.openGLWidget, SLOT(onCopyFrameStepSpinBoxValueChanged(int)));
 
-	// 进行插值
+	// 插值
 	connect(m_ui.radioButtonSmooth, SIGNAL(toggled(bool)), m_ui.openGLWidget, SLOT(onSmoothRadioButtonToggled(bool)));
 	connect(m_ui.spinBoxSmoothStep, SIGNAL(valueChanged(int)), m_ui.openGLWidget, SLOT(onSmoothStepSpinBoxValueChanged(int)));
 
-	// 当移动了点的位置后更新textborwser内容
-	connect(m_ui.openGLWidget, SIGNAL(sendUpdataTextBrowser(int)), this, SLOT(accpetUpdataTextBrowser(int)));
+	// 跳转到指定帧
+	connect(m_ui.spinBoxJumpToFrameIndex, SIGNAL(editingFinished()), this, SLOT(onJumpToFrameIndexSpinBoxFinishedEditing()));
 
-
-	connect(m_ui.openGLWidget, SIGNAL(sendChangeSmoothRadioButton(bool)), this, SLOT(acceptChangeSmoothRadioButton(bool)));
 }
 
 
@@ -97,7 +98,7 @@ void SkeletonModify::connectSlotsAndSignals()
 void SkeletonModify::onLoadConfigureFileActionTriggered()
 {
 	QString configureFilePath = QFileDialog::getOpenFileName(this,
-		tr("Open Configure"), "F:\\data_music2dance\\frames", tr("Configure Files (*.json)"));
+		tr("Open Configure"), "", tr("Configure Files (*.json)"));
 
 	if (configureFilePath.isEmpty())
 	{
@@ -106,15 +107,22 @@ void SkeletonModify::onLoadConfigureFileActionTriggered()
 	}
 	else
 	{
-		emit sendConfigureFilePath(configureFilePath);
-		m_isvalid = true;
+		m_isvalid = m_data.loadData(configureFilePath);
+	}
+	
+	if (m_isvalid)
+	{
+		// ui settting 
+		m_ui.labelTotalFrame->setText(QString::number(m_data.m_frameCount));
+		emit sendCurrFrameIndex(0);
+
+		// 设置帧的跳转的范围
+		m_ui.spinBoxJumpToFrameIndex->setMaximum(m_data.m_frameCount);
+		m_ui.spinBoxJumpToFrameIndex->setMinimum(1);
 	}
 
-	// ui settting 
-	m_ui.labelTotalFrame->setText(QString::number(m_data.m_frameCount));
-	m_ui.labelCurrFrame->setText(QString::number(1));
-	this->setPositionValueTextBrowser(0);
-	emit sendCurrFrameIndex(0);
+	
+
 }
 
 void SkeletonModify::onSavePositionFileActionTriggered()
@@ -123,49 +131,12 @@ void SkeletonModify::onSavePositionFileActionTriggered()
 		m_data.saveDataToFile();
 }
 
-void SkeletonModify::acceptCurrFrameIndex(int index)
+
+void SkeletonModify::onJumpToFrameIndexSpinBoxFinishedEditing()
 {
-	m_ui.labelCurrFrame->setText(QString::number(index+1));
-	// 设置当前帧的各个关节点的值
-	this->setPositionValueTextBrowser(index);
-}
+	if (!m_data.m_isvalid)
+		return;
 
-void SkeletonModify::acceptCurrMoveJointIndex(int index)
-{
-	m_ui.labelCurrJoint->setText(QString::number(index));
-}
-
-
-void SkeletonModify::accpetUpdataTextBrowser(int index)
-{
-	this->setPositionValueTextBrowser(index);
-}
-
-
-void SkeletonModify::setPositionValueTextBrowser(int currFrame)
-{
-	QVector<glm::vec3> data = m_data.m_jointsData[currFrame];
-	QString text;
-	
-
-	for (int i = 0; i < JointsNumber; i++)
-	{
-		float x = data[i].x;
-		float y = data[i].y;
-		float z = data[i].z;
-
-		text += QString("[%1](%2, %3, %4) ").arg(i).arg(x).arg(y).arg(z);
-		if ((i+1) % 3 == 0)
-		{
-			text += "\n";
-		}
-	}
-
-	m_ui.textBrowserPositionValue->setText(text);
-}
-
-
-void SkeletonModify::acceptChangeSmoothRadioButton(bool state)
-{
-	m_ui.radioButtonSmooth->setChecked(state);
+	int frameIndex = m_ui.spinBoxJumpToFrameIndex->value();
+	emit sendCurrFrameIndex(frameIndex - 1);
 }

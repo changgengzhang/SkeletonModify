@@ -100,6 +100,9 @@
     <ClCompile Include="Data.cpp">
       <Filter>Source Files</Filter>
     </ClCompile>
+    <ClCompile Include="ArcBall.cpp">
+      <Filter>Source Files</Filter>
+    </ClCompile>
   </ItemGroup>
   <ItemGroup>
     <CustomBuild Include="SkeletonModify.h">
@@ -134,18 +137,27 @@
     <ClInclude Include="json.h">
       <Filter>Json</Filter>
     </ClInclude>
+    <ClInclude Include="ArcBall.h">
+      <Filter>Header Files</Filter>
+    </ClInclude>
   </ItemGroup>
   <ItemGroup>
-    <None Include="skeletonShader.frag">
+    <None Include="Shader\backdropShader.frag">
       <Filter>Shader</Filter>
     </None>
-    <None Include="skeletonShader.vert">
+    <None Include="Shader\backdropShader.vert">
       <Filter>Shader</Filter>
     </None>
-    <None Include="backdropShader.frag">
+    <None Include="Shader\skeletonShader.frag">
       <Filter>Shader</Filter>
     </None>
-    <None Include="backdropShader.vert">
+    <None Include="Shader\skeletonShader.vert">
+      <Filter>Shader</Filter>
+    </None>
+    <None Include="Shader\sphereShader.frag">
+      <Filter>Shader</Filter>
+    </None>
+    <None Include="Shader\sphereShader.vert">
       <Filter>Shader</Filter>
     </None>
   </ItemGroup>

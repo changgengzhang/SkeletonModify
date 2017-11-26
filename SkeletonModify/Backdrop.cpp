@@ -34,11 +34,12 @@ void Backdrop::init()
 }
 
 
-void Backdrop::draw()
+void Backdrop::draw(glm::mat4 mvpMat)
 {
 	if (!m_isvalid)
 		return;
 
+	m_mvpMat = mvpMat;
 	this->setUniformValues();
 
 	glEnable(GL_DEPTH_TEST);
@@ -144,12 +145,6 @@ void Backdrop::generateTexture(QString textureFile)
 
 	m_vao->release();
 	m_shaderProgram->release();
-}
-
-
-void Backdrop::setMVPMat(glm::mat4 mvpMat)
-{
-	m_mvpMat = mvpMat;
 }
 
 
