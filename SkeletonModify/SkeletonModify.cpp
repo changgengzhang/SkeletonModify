@@ -18,8 +18,6 @@ SkeletonModify::SkeletonModify(QWidget *parent)
 	m_changeWidgets.labelStartSmoothFrame = m_ui.labelStartSmoothFrame;
 	m_changeWidgets.labelEndSmoothFrame = m_ui.labelEndSmoothFrame;
 	m_changeWidgets.labelCurrJoint = m_ui.labelCurrJoint;
-	m_changeWidgets.radioButtonCopyFrame = m_ui.radioButtonCopyFrame;
-	m_changeWidgets.radioButtonSmooth = m_ui.radioButtonSmooth;
 
 	// data pointer
 	m_ui.openGLWidget->setData(&m_changeWidgets, &m_data);
@@ -78,11 +76,11 @@ void SkeletonModify::connectSlotsAndSignals()
 	connect(m_ui.spinBoxMoveDelta, SIGNAL(valueChanged(double)), m_ui.openGLWidget, SLOT(onMoveDeltaSpinBoxValueChanged(double)));
 
 	// 复制帧数据
-	connect(m_ui.radioButtonCopyFrame, SIGNAL(toggled(bool)), m_ui.openGLWidget, SLOT(onCopyFrameRadioButtonToggled(bool)));
-	connect(m_ui.spinBoxCopyFrameStep, SIGNAL(valueChanged(int)), m_ui.openGLWidget, SLOT(onCopyFrameStepSpinBoxValueChanged(int)));
+	connect(m_ui.pushButtonCopyFrame, SIGNAL(clicked()), m_ui.openGLWidget, SLOT(onCopyFramePushButtonClicked()));
+	connect(m_ui.spinBoxCopyFrameIndex, SIGNAL(valueChanged(int)), m_ui.openGLWidget, SLOT(onCopyFrameStepSpinBoxValueChanged(int)));
 
 	// 插值
-	connect(m_ui.radioButtonSmooth, SIGNAL(toggled(bool)), m_ui.openGLWidget, SLOT(onSmoothRadioButtonToggled(bool)));
+	connect(m_ui.pushButtonSmooth, SIGNAL(clicked()), m_ui.openGLWidget, SLOT(onSmoothPushButtonClicked()));
 	connect(m_ui.spinBoxSmoothStep, SIGNAL(valueChanged(int)), m_ui.openGLWidget, SLOT(onSmoothStepSpinBoxValueChanged(int)));
 
 	// 跳转到指定帧
@@ -118,6 +116,9 @@ void SkeletonModify::onLoadConfigureFileActionTriggered()
 
 		// 设置帧的跳转的范围
 		m_ui.spinBoxJumpToFrameIndex->setMaximum(m_data.m_frameCount);
+		m_ui.spinBoxJumpToFrameIndex->setMinimum(1);
+		// copy range
+		m_ui.spinBoxCopyFrameIndex->setMaximum(m_data.m_frameCount);
 		m_ui.spinBoxJumpToFrameIndex->setMinimum(1);
 	}
 

@@ -21,8 +21,8 @@ QT_BEGIN_MOC_NAMESPACE
 QT_WARNING_PUSH
 QT_WARNING_DISABLE_DEPRECATED
 struct qt_meta_stringdata_GLWidget_t {
-    QByteArrayData data[16];
-    char stringdata0[258];
+    QByteArrayData data[15];
+    char stringdata0[250];
 };
 #define QT_MOC_LITERAL(idx, ofs, len) \
     Q_STATIC_BYTE_ARRAY_DATA_HEADER_INITIALIZER_WITH_OFFSET(len, \
@@ -41,21 +41,20 @@ QT_MOC_LITERAL(6, 70, 10), // "QKeyEvent*"
 QT_MOC_LITERAL(7, 81, 8), // "keyEvent"
 QT_MOC_LITERAL(8, 90, 30), // "onMoveDeltaSpinBoxValueChanged"
 QT_MOC_LITERAL(9, 121, 1), // "d"
-QT_MOC_LITERAL(10, 123, 29), // "onCopyFrameRadioButtonToggled"
-QT_MOC_LITERAL(11, 153, 5), // "state"
-QT_MOC_LITERAL(12, 159, 34), // "onCopyFrameStepSpinBoxValueCh..."
-QT_MOC_LITERAL(13, 194, 4), // "step"
-QT_MOC_LITERAL(14, 199, 26), // "onSmoothRadioButtonToggled"
-QT_MOC_LITERAL(15, 226, 31) // "onSmoothStepSpinBoxValueChanged"
+QT_MOC_LITERAL(10, 123, 28), // "onCopyFramePushButtonClicked"
+QT_MOC_LITERAL(11, 152, 34), // "onCopyFrameStepSpinBoxValueCh..."
+QT_MOC_LITERAL(12, 187, 25), // "onSmoothPushButtonClicked"
+QT_MOC_LITERAL(13, 213, 31), // "onSmoothStepSpinBoxValueChanged"
+QT_MOC_LITERAL(14, 245, 4) // "step"
 
     },
     "GLWidget\0sendCurrFrameIndex\0\0"
     "acceptCurrFrameIndex\0index\0keyPressEvent\0"
     "QKeyEvent*\0keyEvent\0onMoveDeltaSpinBoxValueChanged\0"
-    "d\0onCopyFrameRadioButtonToggled\0state\0"
+    "d\0onCopyFramePushButtonClicked\0"
     "onCopyFrameStepSpinBoxValueChanged\0"
-    "step\0onSmoothRadioButtonToggled\0"
-    "onSmoothStepSpinBoxValueChanged"
+    "onSmoothPushButtonClicked\0"
+    "onSmoothStepSpinBoxValueChanged\0step"
 };
 #undef QT_MOC_LITERAL
 
@@ -79,10 +78,10 @@ static const uint qt_meta_data_GLWidget[] = {
        3,    1,   57,    2, 0x0a /* Public */,
        5,    1,   60,    2, 0x0a /* Public */,
        8,    1,   63,    2, 0x0a /* Public */,
-      10,    1,   66,    2, 0x0a /* Public */,
-      12,    1,   69,    2, 0x0a /* Public */,
-      14,    1,   72,    2, 0x0a /* Public */,
-      15,    1,   75,    2, 0x0a /* Public */,
+      10,    0,   66,    2, 0x0a /* Public */,
+      11,    1,   67,    2, 0x0a /* Public */,
+      12,    0,   70,    2, 0x0a /* Public */,
+      13,    1,   71,    2, 0x0a /* Public */,
 
  // signals: parameters
     QMetaType::Void, QMetaType::Int,    2,
@@ -91,10 +90,10 @@ static const uint qt_meta_data_GLWidget[] = {
     QMetaType::Void, QMetaType::Int,    4,
     QMetaType::Void, 0x80000000 | 6,    7,
     QMetaType::Void, QMetaType::Double,    9,
-    QMetaType::Void, QMetaType::Bool,   11,
-    QMetaType::Void, QMetaType::Int,   13,
-    QMetaType::Void, QMetaType::Bool,   11,
-    QMetaType::Void, QMetaType::Int,   13,
+    QMetaType::Void,
+    QMetaType::Void, QMetaType::Int,    4,
+    QMetaType::Void,
+    QMetaType::Void, QMetaType::Int,   14,
 
        0        // eod
 };
@@ -109,9 +108,9 @@ void GLWidget::qt_static_metacall(QObject *_o, QMetaObject::Call _c, int _id, vo
         case 1: _t->acceptCurrFrameIndex((*reinterpret_cast< int(*)>(_a[1]))); break;
         case 2: _t->keyPressEvent((*reinterpret_cast< QKeyEvent*(*)>(_a[1]))); break;
         case 3: _t->onMoveDeltaSpinBoxValueChanged((*reinterpret_cast< double(*)>(_a[1]))); break;
-        case 4: _t->onCopyFrameRadioButtonToggled((*reinterpret_cast< bool(*)>(_a[1]))); break;
+        case 4: _t->onCopyFramePushButtonClicked(); break;
         case 5: _t->onCopyFrameStepSpinBoxValueChanged((*reinterpret_cast< int(*)>(_a[1]))); break;
-        case 6: _t->onSmoothRadioButtonToggled((*reinterpret_cast< bool(*)>(_a[1]))); break;
+        case 6: _t->onSmoothPushButtonClicked(); break;
         case 7: _t->onSmoothStepSpinBoxValueChanged((*reinterpret_cast< int(*)>(_a[1]))); break;
         default: ;
         }

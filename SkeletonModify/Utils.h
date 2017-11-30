@@ -99,7 +99,4 @@ public:
 	QLabel *labelStartSmoothFrame;
 	QLabel *labelEndSmoothFrame;
 	QLabel *labelCurrJoint;
-	
-	QRadioButton *radioButtonCopyFrame;
-	QRadioButton *radioButtonSmooth;
 };

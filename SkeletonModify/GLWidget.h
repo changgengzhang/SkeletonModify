@@ -38,10 +38,10 @@ public:
 	void keyPressEvent(QKeyEvent *keyEvent);
 	void onMoveDeltaSpinBoxValueChanged(double d);
 
-	void onCopyFrameRadioButtonToggled(bool state);
-	void onCopyFrameStepSpinBoxValueChanged(int step);
+	void onCopyFramePushButtonClicked();
+	void onCopyFrameStepSpinBoxValueChanged(int index);
 
-	void onSmoothRadioButtonToggled(bool state);
+	void onSmoothPushButtonClicked();
 	void onSmoothStepSpinBoxValueChanged(int step);
 
 signals:
@@ -75,11 +75,7 @@ private:
 
 	// 插值
 	void smoothFrames();
-	void interpolateOneJoint(int parentJointIndex, int currJointIndex, int startFrameIndex, int endFrameIndex);
-
-	// 对称点设置
-	void calOneSymmetryJoint(int index);
-	
+	void interpolateOneJoint(int parentJointIndex, int currJointIndex, int startFrameIndex, int endFrameIndex);	
 
 	// helper
 	const glm::vec3 calSkeletonCenter();
@@ -100,7 +96,7 @@ private:
 	// 移动单位
 	float m_moveDelta;
 	// 复制某一帧数据
-	int m_copyFrameStep;
+	int m_copyFrameIndex;
 	// 插值
 	int m_smoothStep;
 

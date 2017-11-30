@@ -54,7 +54,8 @@ void Data::saveDataToFile(QString filePath)
 	}
 
 	root["position"] = data;
-	std::string json_file = writer.write(root);
+	std::string json_file = root.toStyledString();
+	// std::string json_file = writer.write(root);
 
 	ofs << json_file;
 	ofs.close();

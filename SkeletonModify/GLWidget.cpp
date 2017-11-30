@@ -70,7 +70,7 @@ GLWidget::GLWidget(QWidget *parent)
 
 	m_currFrameIndex = 0;
 	m_currMovePointsIndex = -1;
-	m_copyFrameStep = 0;
+	m_copyFrameIndex = 0;
 	m_smoothStep = 0;
 }
 
@@ -134,7 +134,7 @@ void GLWidget::paintGL()
 	
 	// 上视图, 左下图
 	glScissor(RenderViewWidth, 0.0f, RenderViewWidth / 2.0f, RenderViewHeight / 2.0f);
-	glClearColor(0.3f, 0.2f, 0.1f, 1);
+	glClearColor(0.5f, 0.5f, 0.5f, 1);
 	glClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT);
 	glViewport(RenderViewWidth, 0.0f, RenderViewWidth / 2.0f, RenderViewHeight / 2.0f);
 	
@@ -147,7 +147,7 @@ void GLWidget::paintGL()
 
 	// 左视图， 左上图
 	glScissor(RenderViewWidth, RenderViewHeight / 2.0f, RenderViewWidth / 2.0f, RenderViewHeight / 2.0f);
-	glClearColor(0.1f, 0.2f, 0.3f, 1);
+	glClearColor(0.6f, 0.6f, 0.6f, 1);
 	glClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT);
 	glViewport(RenderViewWidth, RenderViewHeight / 2.0f, RenderViewWidth / 2.0f, RenderViewHeight / 2.0f);
 	
@@ -300,32 +300,25 @@ void GLWidget::onMoveDeltaSpinBoxValueChanged(double d)
 }
 
 
-void GLWidget::onCopyFrameRadioButtonToggled(bool state)
+void GLWidget::onCopyFramePushButtonClicked()
 {
 	makeCurrent();
-	if (state)
-	{
-		this->copyFrame();
-		m_changeWidgets->radioButtonCopyFrame->setChecked(false);
-		update();
-	}
-}
-
-void GLWidget::onCopyFrameStepSpinBoxValueChanged(int step)
-{
-	m_copyFrameStep = step;
+	this->copyFrame();
+	update();
 }
 
 
-void GLWidget::onSmoothRadioButtonToggled(bool state)
+void GLWidget::onCopyFrameStepSpinBoxValueChanged(int index)
+{
+	m_copyFrameIndex = index - 1;
+}
+
+
+void GLWidget::onSmoothPushButtonClicked()
 {
 	makeCurrent();
-	if (state)
-	{
-		this->smoothFrames();
-		m_changeWidgets->radioButtonSmooth->setChecked(false);
-		update();
-	}
+	this->smoothFrames();	
+	update();
 }
 
 
@@ -564,12 +557,11 @@ void GLWidget::changeCurrFrame(int op)
 
 void GLWidget::copyFrame()
 {
-	int copyFrameIndex = m_currFrameIndex + m_copyFrameStep;
 	// out of range
-	copyFrameIndex = copyFrameIndex < 0 ? 0 : copyFrameIndex;
-	copyFrameIndex = copyFrameIndex < m_data->m_frameCount ? copyFrameIndex : (m_data->m_frameCount - 1);
+	m_copyFrameIndex = m_copyFrameIndex < 0 ? 0 : m_copyFrameIndex;
+	m_copyFrameIndex = m_copyFrameIndex < m_data->m_frameCount ? m_copyFrameIndex : (m_data->m_frameCount - 1);
 
-	m_data->m_jointsData[m_currFrameIndex] = m_data->m_jointsData[copyFrameIndex];
+	m_data->m_jointsData[m_currFrameIndex] = m_data->m_jointsData[m_copyFrameIndex];
 	// 更新冲洗渲染的数据
 	m_model->m_jointsData = m_data->m_jointsData[m_currFrameIndex];
 	m_model->updateVBOData();
@@ -705,8 +697,13 @@ void GLWidget::settingPositionValueTextBrowser(int currFrame)
 		float y = data[i].y;
 		float z = data[i].z;
 
-		text += QString("[%1](%2, %3, %4) ").arg(i).arg(x).arg(y).arg(z);
-		text += "\n";
+		text += QString("[%1](%2, %3, %4) ")
+			.arg(i, 2, 10, QLatin1Char(' '))
+			.arg(x, 11, 'f', 8,QLatin1Char(' '))
+			.arg(y, 11, 'f', 8, QLatin1Char(' '))
+			.arg(z, 11, 'f', 8, QLatin1Char(' '));
+		if ((i + 1) % 2 == 0)
+			text += "\n";
 	}
 
 	m_changeWidgets->textBrowserPositionValue->setText(text);
@@ -733,7 +730,6 @@ void GLWidget::settingFrame(int op)
 	this->changeCurrFrame(op);
 	// 当前帧的index
 	m_changeWidgets->labelCurrFrame->setText(QString::number(m_currFrameIndex + 1));
-	m_changeWidgets->radioButtonCopyFrame->setChecked(false);
 	emit sendCurrFrameIndex(m_currFrameIndex);
 }
 
